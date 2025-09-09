@@ -5,12 +5,10 @@ load_dotenv()
 
 
 class Settings:
-    PROJECT_NAME = "Fake News Detector"
+    PROJECT_NAME = os.getenv("PROJECT_NAME")
+    PROJECT_ID = os.getenv("PROJECT_ID")
     API_KEY = os.getenv("API_KEY")
-    JWT_SECERT_KEY = os.getenv("JWT_SECRET_KEY")
-    JWT_ALGORITHM = "HS256"
-    REDIS_URL = os.getenv("REDIS_URL")
-    MODEL_PATH = "app/models/model.joblib"
-
+    REGION = os.getenv("REGION")
+    GCP_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "google-credentials.json")
 
 settings = Settings()
