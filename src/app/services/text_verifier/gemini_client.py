@@ -38,7 +38,7 @@ def analyze_claim_with_gemini(
         import json
 
         return json.loads(response.text)
-    except:
+    except Exception as e:
         return {
             "label": "Uncertain",
             "score": 0.5,
