@@ -1,5 +1,5 @@
 import requests
-from config.settings import API_KEY
+from config.settings import settings
 
 BASE_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
 
@@ -11,7 +11,7 @@ def search_fact_check(claim: str, language: str = "en") -> list[dict]:
     params = {
         "query": claim,
         "languageCode": language,
-        "key": API_KEY
+        "key": settings.API_KEY
     }
     resp = requests.get(BASE_URL, params=params)
     resp.raise_for_status()

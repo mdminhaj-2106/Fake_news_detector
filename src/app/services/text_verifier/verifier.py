@@ -1,10 +1,10 @@
-from .fact_check_api import check_fact
+from .fact_check_api import search_fact_check
 from .fallback_check import google_search_fallback
 from .gemini_client import analyze_claim_with_gemini
 
 def verify_news(text: str) -> dict:
     # 1. Fact Check
-    fact_result = check_fact(text)
+    fact_result = search_fact_check(text)
     
     # 2. Fallback if needed
     if not fact_result["is_legit"]:

@@ -1,4 +1,8 @@
+import vertexai
 from vertexai.preview.generative_models import GenerativeModel
+from config.settings import settings
+
+vertexai.init(project=settings.PROJECT_ID, location=settings.REGION)
 
 gemini = GenerativeModel("gemini-2.5-pro")
 

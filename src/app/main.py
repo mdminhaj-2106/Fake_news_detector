@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from config.settings import settings
-from app.services import router as text_router
+from app.routes.text_routes import router as text_router
 
 
 app = FastAPI(title=settings.PROJECT_NAME)
