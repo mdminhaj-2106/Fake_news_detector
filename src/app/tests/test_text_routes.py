@@ -1,27 +1,23 @@
-from google.cloud.aiplatform.gapic import PredictionServiceClient
-import os
-from dotenv import load_dotenv
-
-PROJECT_ID =  os.getenv("PROJECT_ID")  
-LOCATION = os.getenv("REGION")                
+import vertexai
+from vertexai.preview.generative_models import GenerativeModel
 
 
-def test_vertex_ai_integration():
-    client = PredictionServiceClient()
-    endpoint = client.endpoint_path(
-        project=PROJECT_ID, location=LOCATION
+
+vertexai.init(
+    project="fake-news-detector-471109", 
+    location="us-central1"               
+)
+
+def gemini_flash_fake_news_check(text: str) -> str:
+    # Use the Gemini 1.5 Flash model
+    model = GenerativeModel("gemini-2.5-flash")
+    prompt = (
+        f"Analyze the following news text and determine if it is likely to be fake or real. "
+        f"Explain your reasoning. Text: {text}"
     )
-
-    instance = {"content": "This is a test news article."}
-    instances = [instance]
-    parameters = {}
-
-    response = client.predict(
-        endpoint=endpoint, instances=instances, parameters=parameters
-    )
-
-    print("Vertex AI response:", response)
-
+    response = model.generate_content(prompt)
+    return response.text
 
 if __name__ == "__main__":
-    test_vertex_ai_integration()
+    result = gemini_flash_fake_news_check("This is a test news article.")
+    print(result)
