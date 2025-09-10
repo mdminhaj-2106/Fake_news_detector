@@ -7,9 +7,9 @@ import os
 BASE_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
 
 def get_authenticated_session():
-    """
-    Creates an authenticated session using service account credentials.
-    """
+    
+    # Creates an authenticated session using service account credentials.
+
     # Path to your service account JSON file
     credentials_path = settings.GCP_CREDENTIALS
     
@@ -33,10 +33,10 @@ def get_authenticated_session():
     return session
 
 def search_fact_check(claim: str, language: str = "en") -> list[dict]:
-    """
-    Queries Google Fact Check API for a given claim using service account authentication.
-    Returns structured evidence snippets.
-    """
+    
+    # Queries Google Fact Check API for a given claim using service account authentication.
+    # Returns structured evidence snippets.
+    
     try:
         # Get authenticated session
         session = get_authenticated_session()
@@ -66,9 +66,9 @@ def search_fact_check(claim: str, language: str = "en") -> list[dict]:
         return []
 
 def search_fact_check_with_api_key(claim: str, language: str = "en") -> list[dict]:
-    """
-    Fallback method using API key (keep as backup).
-    """
+    
+    # Fallback method using API key (keep as backup).
+    
     params = {
         "query": claim,
         "languageCode": language,
