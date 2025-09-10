@@ -32,7 +32,7 @@ def get_authenticated_session():
     
     return session
 
-def search_fact_check(claim: str, language: str = "en") -> list[dict]:
+def search_fact_check(claim: str, language: str = "en") -> dict:
     
     # Queries Google Fact Check API for a given claim using service account authentication.
     # Returns structured evidence snippets.
@@ -52,39 +52,79 @@ def search_fact_check(claim: str, language: str = "en") -> list[dict]:
 
         results = []
         for item in data.get("claims", []):
-            review = item.get("claimReview", [{}])[0]
+            # Handle claimReview - it can be a list or a single dict
+            claim_reviews = item.get("claimReview", [])
+            if isinstance(claim_reviews, list) and len(claim_reviews) > 0:
+                review = claim_reviews[0]
+            elif isinstance(claim_reviews, dict):
+                review = claim_reviews
+            else:
+                review = {}
+                
             results.append({
                 "claim": item.get("text"),
                 "rating": review.get("textualRating"),
                 "publisher": review.get("publisher", {}).get("name"),
                 "url": review.get("url")
             })
-        return results
+        
+        # Return a dict with the expected structure for verifier.py
+        return {
+            "is_legit": len(results) > 0,  # True if we found claims
+            "evidence": results,
+            "source": "fact_check_api"
+        }
         
     except Exception as e:
         print(f"Error in fact check API: {e}")
-        return []
+        return {
+            "is_legit": None,
+            "evidence": [],
+            "source": "fact_check_api_error"
+        }
 
-def search_fact_check_with_api_key(claim: str, language: str = "en") -> list[dict]:
+def search_fact_check_with_api_key(claim: str, language: str = "en") -> dict:
     
     # Fallback method using API key (keep as backup).
     
-    params = {
-        "query": claim,
-        "languageCode": language,
-        "key": settings.API_KEY
-    }
-    resp = requests.get(BASE_URL, params=params)
-    resp.raise_for_status()
-    data = resp.json()
+    try:
+        params = {
+            "query": claim,
+            "languageCode": language,
+            "key": settings.API_KEY
+        }
+        resp = requests.get(BASE_URL, params=params)
+        resp.raise_for_status()
+        data = resp.json()
 
-    results = []
-    for item in data.get("claims", []):
-        review = item.get("claimReview", [{}])[0]
-        results.append({
-            "claim": item.get("text"),
-            "rating": review.get("textualRating"),
-            "publisher": review.get("publisher", {}).get("name"),
-            "url": review.get("url")
-        })
-    return results
+        results = []
+        for item in data.get("claims", []):
+            # Handle claimReview - it can be a list or a single dict
+            claim_reviews = item.get("claimReview", [])
+            if isinstance(claim_reviews, list) and len(claim_reviews) > 0:
+                review = claim_reviews[0]
+            elif isinstance(claim_reviews, dict):
+                review = claim_reviews
+            else:
+                review = {}
+                
+            results.append({
+                "claim": item.get("text"),
+                "rating": review.get("textualRating"),
+                "publisher": review.get("publisher", {}).get("name"),
+                "url": review.get("url")
+            })
+        
+        # Return a dict with the expected structure for verifier.py
+        return {
+            "is_legit": len(results) > 0,  # True if we found claims
+            "evidence": results,
+            "source": "fact_check_api_key"
+        }
+    except Exception as e:
+        print(f"Error in fact check API key method: {e}")
+        return {
+            "is_legit": None,
+            "evidence": [],
+            "source": "fact_check_api_key_error"
+        }
