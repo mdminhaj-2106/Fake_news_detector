@@ -1,9 +1,9 @@
-import os
 import requests
 from typing import List, Dict
+from src.config.settings import settings
 
-API_KEY = os.getenv("API_KEY")
-GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
+API_KEY = settings.API_KEY
+GOOGLE_CSE_ID = settings.GOOGLE_CSE_ID
 
 
 def fallback_search(claim: str, num_results: int = 5) -> List[Dict]:
