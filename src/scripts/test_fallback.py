@@ -1,4 +1,4 @@
-from app.services.text_verifier.fallback_check import fallback_search
+from src.app.services.text_verifier.fallback_check import fallback_search
 
 if __name__ == "__main__":
     claim = "7.5 earthquake in Delhi today"
