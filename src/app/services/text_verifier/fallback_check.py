@@ -9,7 +9,7 @@ def google_search_fallback(claim: str, num_results: int = 5) -> dict:
     # Returns a dict with the same structure as fact_check_api.py.
     
 
-    API_KEY = settings.GOOGLE_CSE_API_KEY
+    API_KEY = settings.API_KEY
     GOOGLE_CSE_ID = settings.GOOGLE_CSE_ID
 
     if not API_KEY or not GOOGLE_CSE_ID:
