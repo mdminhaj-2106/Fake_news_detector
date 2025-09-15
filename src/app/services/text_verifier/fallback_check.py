@@ -1,24 +1,21 @@
+import os
 import requests
-from config.settings import settings
+from typing import List, Dict
 
-BASE_URL = "https://www.googleapis.com/customsearch/v1"
+API_KEY = os.getenv("API_KEY")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
-def google_search_fallback(claim: str, num_results: int = 5) -> dict:
-    
-    # Queries Google Custom Search API when Fact Check API has no results.
-    # Returns a dict with the same structure as fact_check_api.py.
-    
 
-    API_KEY = settings.API_KEY
-    GOOGLE_CSE_ID = settings.GOOGLE_CSE_ID
+def fallback_search(claim: str, num_results: int = 5) -> List[Dict]:
+    """
+    Queries Google Custom Search API when Fact Check API has no results.
+    Returns a list of evidence snippets with title, snippet, source, and URL.
+    """
 
     if not API_KEY or not GOOGLE_CSE_ID:
-        return {
-            "is_legit": None,
-            "evidence": [],
-            "source": "fallback_search_missing_credentials"
-        }
+        raise ValueError("Missing Google Custom Search API credentials")
 
+    url = "https://www.googleapis.com/customsearch/v1"
     params = {
         "key": API_KEY,
         "cx": GOOGLE_CSE_ID,
@@ -28,36 +25,20 @@ def google_search_fallback(claim: str, num_results: int = 5) -> dict:
     }
 
     try:
-        resp = requests.get(BASE_URL, params=params, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-
-        results = []
-        for item in data.get("items", []):
-            results.append({
-                "claim": claim,
-                "rating": None,  # CSE doesn’t provide ratings
-                "publisher": item.get("displayLink"),
-                "url": item.get("link"),
-            })
-
-        return {
-            "is_legit": len(results) > 0,
-            "evidence": results[:num_results],
-            "source": "fallback_search"
-        }
-
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
     except Exception as e:
-        print(f"[fallback_search] Error: {e}")
-        return {
-            "is_legit": None,
-            "evidence": [],
-            "source": "fallback_search_error"
-        }
+        print(f"[fallback_search] Error fetching results: {e}")
+        return []
 
+    results = []
+    for item in data.get("items", []):
+        results.append({
+            "title": item.get("title"),
+            "snippet": item.get("snippet"),
+            "source": item.get("displayLink"),
+            "url": item.get("link"),
+        })
 
-if __name__ == "__main__":
-    claim = "7.5 earthquake in Delhi today"
-    result = google_search_fallback(claim)
-    print("Fallback Search Results:")
-    print(result)
+    return results[:num_results]
